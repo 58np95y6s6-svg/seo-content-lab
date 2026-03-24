@@ -874,10 +874,105 @@
     }
 
     .project-card-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .project-metric {
+      display: grid;
+      gap: 8px;
+      padding: 12px 12px 11px;
+      border-radius: 16px;
+      border: 1px solid rgba(112, 83, 53, 0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.78));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.55);
+    }
+
+    .project-metric-head {
       display: flex;
-      flex-wrap: wrap;
+      justify-content: space-between;
       gap: 10px;
-      align-items: center;
+      align-items: baseline;
+    }
+
+    .project-metric-label {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .project-metric-value {
+      font-size: 18px;
+      line-height: 1.05;
+      letter-spacing: -0.05em;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .project-metric-copy {
+      font-size: 11px;
+      line-height: 1.35;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .project-metric-track {
+      height: 5px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(32, 21, 15, 0.08);
+    }
+
+    .project-metric-bar {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+    }
+
+    .project-metric.good {
+      background: linear-gradient(180deg, rgba(14,124,102,0.05), rgba(255,255,255,0.92));
+      border-color: rgba(14,124,102,0.12);
+    }
+
+    .project-metric.good .project-metric-value,
+    .project-metric.good .project-metric-copy {
+      color: #0a6b57;
+    }
+
+    .project-metric.good .project-metric-bar {
+      background: linear-gradient(90deg, #0f8e74, #26b79a);
+    }
+
+    .project-metric.warn {
+      background: linear-gradient(180deg, rgba(217,119,6,0.05), rgba(255,255,255,0.92));
+      border-color: rgba(217,119,6,0.12);
+    }
+
+    .project-metric.warn .project-metric-value,
+    .project-metric.warn .project-metric-copy {
+      color: #a85b05;
+    }
+
+    .project-metric.warn .project-metric-bar {
+      background: linear-gradient(90deg, #e89a30, #cf5d12);
+    }
+
+    .project-metric.danger {
+      background: linear-gradient(180deg, rgba(180,35,24,0.04), rgba(255,255,255,0.92));
+      border-color: rgba(180,35,24,0.1);
+    }
+
+    .project-metric.danger .project-metric-value,
+    .project-metric.danger .project-metric-copy {
+      color: #aa261d;
+    }
+
+    .project-metric.danger .project-metric-bar {
+      background: linear-gradient(90deg, #d24f42, #b42318);
     }
 
     .project-meta {
@@ -950,7 +1045,8 @@
       .grid-4,
       .metric-cards,
       .mini-metrics,
-      .filters-bar {
+      .filters-bar,
+      .project-card-metrics {
         grid-template-columns: 1fr;
       }
 
@@ -1445,6 +1541,30 @@
       }
       if (state.backup.configured) return "Backup disque à réautoriser";
       return "Backup disque inactif";
+    }
+
+    function dashboardMetrics(analysis) {
+      const seoTone = analysis.seoScore >= 60 ? "good" : analysis.seoScore >= 42 ? "warn" : "danger";
+      const seoCopy = analysis.seoScore >= 60 ? "Socle solide" : analysis.seoScore >= 42 ? "Encore incomplet" : "Niveau faible";
+
+      const dangerTone = analysis.dangerScore <= 18 ? "good" : analysis.dangerScore <= 35 ? "warn" : "danger";
+      const dangerCopy = analysis.dangerScore <= 18 ? "Risque faible" : analysis.dangerScore <= 35 ? "A surveiller" : "Risque élevé";
+      const dangerProgress = Math.max(0, 100 - analysis.dangerScore);
+
+      const wordRatio = analysis.target.min ? analysis.metrics.wordCount / analysis.target.min : 0;
+      const wordsTone = analysis.metrics.wordCount >= analysis.target.min ? "good" : wordRatio >= 0.72 ? "warn" : "danger";
+      const wordsCopy = analysis.metrics.wordCount >= analysis.target.min
+        ? "Dans la cible"
+        : wordRatio >= 0.72
+          ? "Presque au niveau"
+          : "Trop court";
+      const wordsProgress = Math.min(100, Math.round((analysis.metrics.wordCount / Math.max(1, analysis.target.sweet)) * 100));
+
+      return [
+        { label: "SEO", value: analysis.seoScore + "/100", copy: seoCopy, progress: analysis.seoScore, tone: seoTone },
+        { label: "Danger", value: analysis.dangerScore + "/100", copy: dangerCopy, progress: dangerProgress, tone: dangerTone },
+        { label: "Volume", value: analysis.metrics.wordCount + " mots", copy: wordsCopy, progress: wordsProgress, tone: wordsTone }
+      ];
     }
 
     function openProject(id) {
@@ -2182,6 +2302,7 @@
                 ${projects.map((project) => {
                   const analysis = scoreProject(project);
                   const primaryKeywords = primaryKeywordList(project);
+                  const metrics = dashboardMetrics(analysis);
                   return `
                     <article class="project-card project-card-open" data-action="open-project" data-id="${project.id}">
                       <div class="project-card-head">
@@ -2195,9 +2316,16 @@
                         </div>
                       </div>
                       <div class="project-card-metrics">
-                        <span class="chip">SEO ${analysis.seoScore}/100</span>
-                        <span class="chip">Danger ${analysis.dangerScore}/100</span>
-                        <span class="chip">${analysis.metrics.wordCount} mots</span>
+                        ${metrics.map((metric) => `
+                          <div class="project-metric ${metric.tone}">
+                            <div class="project-metric-head">
+                              <span class="project-metric-label">${escapeHtml(metric.label)}</span>
+                              <strong class="project-metric-value">${escapeHtml(metric.value)}</strong>
+                            </div>
+                            <div class="project-metric-copy">${escapeHtml(metric.copy)}</div>
+                            <div class="project-metric-track"><span class="project-metric-bar" style="width:${metric.progress}%"></span></div>
+                          </div>
+                        `).join("")}
                       </div>
                       <div class="project-meta">
                         <span>Modifié ${formatDate(project.updatedAt)}</span>
