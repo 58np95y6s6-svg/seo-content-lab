@@ -1,0 +1,18 @@
+{
+  "brand": "LAVANCE",
+  "metaTitle": "Test de lavage",
+  "metaDescription": "Ceci est un test",
+  "slug": "l",
+  "canonicalUrl": "https://www.lavance.com",
+  "primaryKeywords": "",
+  "secondaryKeywords": "Test\nOui\nBonjour",
+  "intent": "informationnelle",
+  "audience": "Propriétaire de station de lavage.",
+  "notes": "",
+  "content": "<p><strong>Introduction.</strong> Répondez dès le début à l'intention de recherche autour de mot-clé principal.</p><h2>Comprendre Le lavage automobile</h2><p>Cadre, enjeux, définition et contexte.</p><h2>Méthode recommandée</h2><p>Étapes concrètes, exemples, limites, variantes.</p><h2>Questions fréquentes</h2><ul><li>Question 1</li><li>Question 2</li></ul><h2>Conclusion</h2><p>Synthèse et prochaine action.</p>",
+  "id": "1774346609266",
+  "articleTitle": "Le lavage automobile",
+  "primaryKeyword": "",
+  "createdAt": "2026-03-24T10:03:28.675Z",
+  "updatedAt": "2026-03-24T10:34:20.965Z"
+}
