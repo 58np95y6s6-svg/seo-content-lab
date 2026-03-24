@@ -64,7 +64,7 @@
       background: rgba(255, 251, 245, 0.64);
       box-shadow: var(--shadow);
       border-radius: 34px;
-      overflow: hidden;
+      overflow: visible;
       backdrop-filter: blur(18px);
     }
 
@@ -407,6 +407,15 @@
 
     .toolbar {
       margin-bottom: 20px;
+      position: sticky;
+      top: 18px;
+      z-index: 12;
+      padding: 10px;
+      border-radius: 18px;
+      background: rgba(255, 250, 242, 0.88);
+      border: 1px solid rgba(112, 83, 53, 0.12);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 24px rgba(44, 28, 17, 0.06);
     }
 
     .tool-btn {
